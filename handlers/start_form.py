@@ -1,4 +1,5 @@
 import logging
+import aiofiles
 
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
@@ -6,6 +7,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import (
     CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
 )
+
+from service.google_sheets import async_get_sheet
 
 router = Router()
 
@@ -47,9 +50,13 @@ async def phone_case(mes: Message, state: FSMContext):
 @router.message(StartForm.email)
 async def email_case(mes: Message, state: FSMContext):
     await state.update_data(email=mes.text)
-    data = await state.get_data()
+    data = await state.get_data() # Get all data form
+
     # Saving data in Google Table
-    await state.clear()
+    sheet = await async_get_sheet()
+    sheet.append_row([mes.from_user.id, data["name"], data["phone"], data["email"]])
+
+    await state.clear() # Cleaning data storge
 
     f = FSInputFile("files/guide.pdf")
     await mes.answer_document(f)
@@ -59,6 +66,9 @@ async def email_case(mes: Message, state: FSMContext):
 async def skip_email(c: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     # Сохранение в Google Table
+    sheet = await async_get_sheet()
+    sheet.append_row([c.message.chat.id, data["name"], data["phone"]])
+
     await state.clear()
 
     f = FSInputFile("files/guide.pdf")
