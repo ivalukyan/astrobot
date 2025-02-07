@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 
 from handlers.start_form import router as start_form_router
 from service.redis import User
+from utils.texts import START_TEXT_BOT
 from datetime import datetime
-
 
 load_dotenv()
 
@@ -30,14 +30,15 @@ dp = Dispatcher()
 
 @router.message(CommandStart())
 async def command_start(message: Message) -> None:
+    await message.answer(f"Здравствуйте, {message.from_user.first_name}, " + START_TEXT_BOT,
+                         reply_markup=InlineKeyboardMarkup(
+                             inline_keyboard=[
+                                 [InlineKeyboardButton(text="Заполнить форму", callback_data="start_form")]
+                             ]
+                         ))
 
-    await message.answer(f"Здравствуйте, {message.from_user.first_name}!", reply_markup=InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Заполнить форму", callback_data="start_form")]
-        ]
-    ))
-
-    user = User(id=message.from_user.id, username=message.from_user.username, approved=False, date_joined=datetime.now())
+    user = User(id=message.from_user.id, username=message.from_user.username, approved=False,
+                date_joined=datetime.now())
     await user.save_to_redis()
 
 
