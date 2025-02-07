@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+
+  telegram_bot:
+    build:
+      context: ../
+      dockerfile: ./docker/bot/Dockerfile
+    container_name: telegram_bot
+    volumes:
+      - ../ :/src
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: [ "redis-server", "--appendonly", "yes" ]
+
+volumes:
+  redis_data:
