@@ -12,6 +12,7 @@ from service.google_sheets import async_get_sheet
 from service.redis import User
 
 from utils.validations import check_name, check_email, check_phone
+from utils.texts import PHONE_RECOMMENDATION
 
 router = Router()
 
@@ -34,11 +35,7 @@ async def name_case(mes: Message, state: FSMContext):
         await state.update_data(name=mes.text)
 
         await state.set_state(StartForm.phone)
-        await mes.answer("""Напишите свой номер телефона
-        
-    - Номер должен начинаться с 7
-    - Без тире, скобок, пробелов
-        """)
+        await mes.answer(PHONE_RECOMMENDATION)
     else:
         await mes.answer("Введите корректно имя!")
 
@@ -55,7 +52,7 @@ async def phone_case(mes: Message, state: FSMContext):
             ]
         ))
     else:
-        await mes.answer("Введите номер корректно!")
+        await mes.answer("Введите номер корректно!\n<i>Пример: 79651234556</i>")
 
 
 @router.message(StartForm.email)
