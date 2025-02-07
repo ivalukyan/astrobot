@@ -28,7 +28,9 @@ async def start_form(c: CallbackQuery, state: FSMContext):
 
 @router.message(StartForm.name)
 async def name_case(mes: Message, state: FSMContext):
+    # TODO: Добавить проверку на корректность ввода имени
     await state.update_data(name=mes.text)
+
     await state.set_state(StartForm.phone)
     await mes.answer("""Напишите свой номер телефона
     
@@ -39,7 +41,9 @@ async def name_case(mes: Message, state: FSMContext):
 
 @router.message(StartForm.phone)
 async def phone_case(mes: Message, state: FSMContext):
+    # TODO: Добавить проверку на корректность ввода номера телефона
     await state.update_data(phone=mes.text)
+
     await state.set_state(StartForm.email)
     await mes.answer("Напишите свой email (необязательно)", reply_markup=InlineKeyboardMarkup(
         inline_keyboard=[
@@ -50,6 +54,7 @@ async def phone_case(mes: Message, state: FSMContext):
 
 @router.message(StartForm.email)
 async def email_case(mes: Message, state: FSMContext):
+    # TODO: Добавить проверку на корректность ввода email
     await state.update_data(email=mes.text)
     data = await state.get_data() # Get all data form
 
