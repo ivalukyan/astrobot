@@ -14,6 +14,8 @@ from aiogram.types import (
 from dotenv import load_dotenv
 
 from handlers.start_form import router as start_form_router
+from service.redis import User
+from datetime import datetime
 
 
 load_dotenv()
@@ -34,6 +36,9 @@ async def command_start(message: Message) -> None:
             [InlineKeyboardButton(text="Заполнить форму", callback_data="start_form")]
         ]
     ))
+
+    user = User(id=message.from_user.id, username=message.from_user.username, approved=False, date_joined=datetime.now())
+    await user.save_to_redis()
 
 
 async def main():

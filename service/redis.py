@@ -2,6 +2,7 @@ import json
 import logging
 from redis.asyncio import Redis
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
 
 
 redis_client = Redis(host='localhost', port=6379, db=0, decode_responses=True)
@@ -9,11 +10,12 @@ redis_client = Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
 class User(BaseModel):
     id: int
-    name: str
-    phone: str
+    name: str | None = None
+    phone: str | None = None
     username: str | None = None
     email: EmailStr | None = None
     approved: bool | None = None
+    date_joined: datetime | None = None
 
     async def save_to_redis(self):
         await redis_client.set(f"user:{self.id}", self.model_dump_json())
