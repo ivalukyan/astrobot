@@ -1,5 +1,5 @@
 import logging
-import aiofiles
+
 
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
@@ -67,12 +67,13 @@ async def email_case(mes: Message, state: FSMContext):
 
         # update data in redis
         user = await User.get_from_redis(mes.from_user.id)
-        user.update_in_redis(name=data["name"], phone=data["phone"], email=data["email"], approved=True)
+        await user.update_in_redis(name=data["name"], phone=data["phone"], email=data["email"], approved=True)
 
         await state.clear() # Cleaning data storge
 
         f = FSInputFile("files/guide.pdf")
         await mes.answer_document(f)
+        logging.info("Файл отправлен.")
     else:
         await mes.answer("Введите e-mail корректно!")
 
@@ -86,9 +87,10 @@ async def skip_email(c: CallbackQuery, state: FSMContext):
 
     # update data in redis
     user = await User.get_from_redis(c.message.chat.id)
-    user.update_in_redis(name=data["name"], phone=data["phone"], approved=True)
+    await user.update_in_redis(name=data["name"], phone=data["phone"], approved=True)
 
     await state.clear()
 
     f = FSInputFile("files/guide.pdf")
     await c.message.answer_document(f)
+    logging.info("Файл отправлен.")

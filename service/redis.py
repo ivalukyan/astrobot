@@ -1,12 +1,10 @@
 import json
 import logging
 from redis.asyncio import Redis
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from datetime import datetime
 
-
 redis_client = Redis(host="redis", port=6379, db=0, decode_responses=True)
-
 
 class User(BaseModel):
     id: int
@@ -18,25 +16,34 @@ class User(BaseModel):
     date_joined: datetime | None = None
 
     async def save_to_redis(self):
-        await redis_client.set(f"user:{self.id}", self.model_dump_json())
+        user_data = self.model_dump()
+        if user_data["date_joined"]:
+            user_data["date_joined"] = user_data["date_joined"].isoformat()  # Convert datetime to string
+        await redis_client.set(f"user:{self.id}", json.dumps(user_data))
         logging.info(f"User {self.id} saved to redis")
 
     @staticmethod
-    async def get_from_redis(self):
-        user_data = await redis_client.get(f"user:{self.id}")
+    async def get_from_redis(user_id: int):
+        user_data = await redis_client.get(f"user:{user_id}")
         if user_data:
-            return User(**json.loads(user_data))
+            user_dict = json.loads(user_data)
+            if user_dict.get("date_joined"):  # Convert back to datetime
+                user_dict["date_joined"] = datetime.fromisoformat(user_dict["date_joined"])
+            return User(**user_dict)
         return None
 
     async def update_in_redis(self, **kwargs):
-        existing_user = await self.get_from_redis(self.id)
+        existing_user = await User.get_from_redis(self.id)
         if not existing_user:
             logging.info(f"User {self.id} does not exist")
             return None
 
         updated_user = existing_user.model_dump() | kwargs
+        if updated_user.get("date_joined") and isinstance(updated_user["date_joined"], datetime):
+            updated_user["date_joined"] = updated_user["date_joined"].isoformat()  # Convert datetime to string
+
         await redis_client.set(f"user:{self.id}", json.dumps(updated_user))
-        logging.info(f"User {self.id} updated from redis")
+        logging.info(f"User {self.id} updated in redis")
 
         return User(**updated_user)
 
