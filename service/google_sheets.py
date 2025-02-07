@@ -9,7 +9,7 @@ def authorize():
         "https://www.googleapis.com/auth/drive",
         "https://www.googleapis.com/auth/spreadsheets"
     ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("service/cred.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name("files/cred.json", scope)
     client = gspread.authorize(creds)
     return client
 
