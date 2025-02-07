@@ -9,6 +9,7 @@ from aiogram.types import (
 )
 
 from service.google_sheets import async_get_sheet
+from service.redis import User
 
 router = Router()
 
@@ -56,6 +57,10 @@ async def email_case(mes: Message, state: FSMContext):
     sheet = await async_get_sheet()
     sheet.append_row([mes.from_user.id, data["name"], data["phone"], data["email"]])
 
+    # update data in redis
+    user = await User.get_from_redis(mes.from_user.id)
+    user.update_in_redis(name=data["name"], phone=data["phone"], email=data["email"], approved=True)
+
     await state.clear() # Cleaning data storge
 
     f = FSInputFile("files/guide.pdf")
@@ -68,6 +73,10 @@ async def skip_email(c: CallbackQuery, state: FSMContext):
     # Сохранение в Google Table
     sheet = await async_get_sheet()
     sheet.append_row([c.message.chat.id, data["name"], data["phone"]])
+
+    # update data in redis
+    user = await User.get_from_redis(c.message.chat.id)
+    user.update_in_redis(name=data["name"], phone=data["phone"], approved=True)
 
     await state.clear()
 
