@@ -13,7 +13,7 @@ class User(BaseModel):
     name: str | None = None
     phone: str | None = None
     username: str | None = None
-    email: EmailStr | None = None
+    email: str | None = None
     approved: bool | None = None
     date_joined: datetime | None = None
 

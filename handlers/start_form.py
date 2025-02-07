@@ -11,6 +11,8 @@ from aiogram.types import (
 from service.google_sheets import async_get_sheet
 from service.redis import User
 
+from utils.validations import check_name, check_email, check_phone
+
 router = Router()
 
 
@@ -28,48 +30,54 @@ async def start_form(c: CallbackQuery, state: FSMContext):
 
 @router.message(StartForm.name)
 async def name_case(mes: Message, state: FSMContext):
-    # TODO: Добавить проверку на корректность ввода имени
-    await state.update_data(name=mes.text)
+    if await check_name(mes.text):
+        await state.update_data(name=mes.text)
 
-    await state.set_state(StartForm.phone)
-    await mes.answer("""Напишите свой номер телефона
-    
-- Номер должен начинаться с 7
-- Без тире, скобок, пробелов
-    """)
+        await state.set_state(StartForm.phone)
+        await mes.answer("""Напишите свой номер телефона
+        
+    - Номер должен начинаться с 7
+    - Без тире, скобок, пробелов
+        """)
+    else:
+        await mes.answer("Введите корректно имя!")
 
 
 @router.message(StartForm.phone)
 async def phone_case(mes: Message, state: FSMContext):
-    # TODO: Добавить проверку на корректность ввода номера телефона
-    await state.update_data(phone=mes.text)
+    if await check_phone(mes.text):
+        await state.update_data(phone=mes.text)
 
-    await state.set_state(StartForm.email)
-    await mes.answer("Напишите свой email (необязательно)", reply_markup=InlineKeyboardMarkup(
-        inline_keyboard=[
-            [InlineKeyboardButton(text="Пропустить", callback_data="skip_email")]
-        ]
-    ))
+        await state.set_state(StartForm.email)
+        await mes.answer("Напишите свой email (необязательно)", reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="Пропустить", callback_data="skip_email")]
+            ]
+        ))
+    else:
+        await mes.answer("Введите номер корректно!")
 
 
 @router.message(StartForm.email)
 async def email_case(mes: Message, state: FSMContext):
-    # TODO: Добавить проверку на корректность ввода email
-    await state.update_data(email=mes.text)
-    data = await state.get_data() # Get all data form
+    if await check_email(mes.text):
+        await state.update_data(email=mes.text)
+        data = await state.get_data() # Get all data form
 
-    # Saving data in Google Table
-    sheet = await async_get_sheet()
-    sheet.append_row([mes.from_user.id, data["name"], data["phone"], data["email"]])
+        # Saving data in Google Table
+        sheet = await async_get_sheet()
+        sheet.append_row([mes.from_user.id, data["name"], data["phone"], data["email"]])
 
-    # update data in redis
-    user = await User.get_from_redis(mes.from_user.id)
-    user.update_in_redis(name=data["name"], phone=data["phone"], email=data["email"], approved=True)
+        # update data in redis
+        user = await User.get_from_redis(mes.from_user.id)
+        user.update_in_redis(name=data["name"], phone=data["phone"], email=data["email"], approved=True)
 
-    await state.clear() # Cleaning data storge
+        await state.clear() # Cleaning data storge
 
-    f = FSInputFile("files/guide.pdf")
-    await mes.answer_document(f)
+        f = FSInputFile("files/guide.pdf")
+        await mes.answer_document(f)
+    else:
+        await mes.answer("Введите e-mail корректно!")
 
 
 @router.callback_query(lambda c: c.data == "skip_email")

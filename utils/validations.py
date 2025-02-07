@@ -16,7 +16,7 @@ async def check_name(name: str) -> bool:
     if not pattern.match(name):
         return False
 
-    with open("../files/bad_words.txt") as f:
+    with open("files/bad_words.txt") as f:
         bad_words = [line.strip() for line in f]
 
     # Проверка на содержание плохих слов
