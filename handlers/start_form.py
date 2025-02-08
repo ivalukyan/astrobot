@@ -70,7 +70,7 @@ async def email_case(mes: Message, state: FSMContext):
         await user.update_in_redis(name=data["name"], phone=data["phone"], email=data["email"], approved=True)
 
         await state.clear() # Cleaning data storge
-
+        await mes.answer("Спасибо, что заполнили форму! Прямо сейчас отправим Вам гайд!")
         f = FSInputFile("files/guide.pdf")
         await mes.answer_document(f)
         logging.info("Файл отправлен.")
@@ -91,6 +91,7 @@ async def skip_email(c: CallbackQuery, state: FSMContext):
 
     await state.clear()
 
+    await c.message.answer("Спасибо, что заполнили форму! Прямо сейчас отправим Вам гайд!")
     f = FSInputFile("files/guide.pdf")
     await c.message.answer_document(f)
     logging.info("Файл отправлен.")
