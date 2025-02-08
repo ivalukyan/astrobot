@@ -14,6 +14,7 @@ from aiogram.types import (
 from dotenv import load_dotenv
 
 from handlers.start_form import router as start_form_router
+from handlers.admin import router as admin_router
 from service.redis import User
 from utils.texts import START_TEXT_BOT
 from datetime import datetime
@@ -50,7 +51,7 @@ async def command_start(message: Message) -> None:
 
 
 async def main():
-    dp.include_routers(router, start_form_router)
+    dp.include_routers(router, start_form_router, admin_router)
     await dp.start_polling(bot_object)
 
 
