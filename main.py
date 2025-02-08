@@ -51,7 +51,7 @@ async def command_start(message: Message) -> None:
 
 
 async def main():
-    dp.include_routers(router, start_form_router, admin_router)
+    dp.include_routers(start_form_router, admin_router, router)
     await dp.start_polling(bot_object)
 
 
