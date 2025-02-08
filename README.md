@@ -1,11 +1,11 @@
 # Telegram Bot Astrology
 
-##  Скопируем репозиторий
+## Скопируем репозиторий
 ```bash
 git clone https://github.com/ivalukyan/astrobot.git
 ```
 
-##  Перейдем в склонированный репозиторий
+## Перейдем в склонированный репозиторий
 ```bash
 cd astrobot
 ```
@@ -43,7 +43,24 @@ BOT_TOKEN=
 ADMINS=[]
 ```
 
+## Создадите сервисный аккаунт в Google Console
+`
+https://console.cloud.google.com/iam-admin/serviceaccounts?project=singular-cache-450120-i9
+`  
+Нажмите справа на 3 точки и добавьте ключ. Получите его в виде JSON.  
+Полученный JSON переименуйте в cred.json и добавьте в папку в проекте `files`
+
+## Настройка доступа для Google Sheets
+Создайте новую таблицу google sheets, в первые колонки добавьте по образцу названия столбцов.
+Перейдите в настройки доступа и добавьте сервисный аккаунт.
+
+
 ## Зупустим Docker контейнеры
 ```bash
 docker compose -f ./docker/docker-compose.yml up -d --build
 ```
+
+
+## Команды
+Чтобы запустить бота напишите `/start`  
+Чтобы перейти в меню админа `/admin`
