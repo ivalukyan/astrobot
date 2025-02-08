@@ -1,5 +1,10 @@
 # Telegram Bot Astrology
 
+## Установите git
+```bash
+sudo apt install git
+```
+
 ## Скопируем репозиторий
 ```bash
 git clone https://github.com/ivalukyan/astrobot.git
