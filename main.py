@@ -44,10 +44,14 @@ async def command_start(message: Message) -> None:
                     date_joined=datetime.now())
         await user.save_to_redis()
     else:
-        await message.answer(f"Здравствуйте, {message.from_user.first_name}, " + START_TEXT_BOT)
-        f = FSInputFile("files/guide.pdf")
-        await message.answer_document(f)
-        logging.info("Файл отправлен.")
+        user = await User.get_from_redis(message.from_user.id)
+        if user.approved:
+            await message.answer(f"Здравствуйте, {message.from_user.first_name}, " + START_TEXT_BOT)
+            f = FSInputFile("files/guide.pdf")
+            await message.answer_document(f)
+            logging.info("Файл отправлен.")
+        else:
+            await message.answer("Вы не до конца заполнили форму!")
 
 
 async def main():
