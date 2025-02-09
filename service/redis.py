@@ -9,7 +9,6 @@ redis_client = Redis(host="redis", port=6379, db=0, decode_responses=True)
 class User(BaseModel):
     id: int
     name: str | None = None
-    phone: str | None = None
     username: str | None = None
     email: str | None = None
     approved: bool | None = None

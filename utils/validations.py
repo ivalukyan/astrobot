@@ -28,7 +28,7 @@ async def check_name(name: str) -> bool:
 
 
 async def check_email(email: str) -> bool:
-    pattern = re.compile(r"^[a-z0-9_]{4,}@[a-z]{4,}.[a-z]{2,}$")
+    pattern = re.compile(r"^[a-z0-9_.]{4,}@[a-z]+(\.[a-z]{2,})+$")
     if not pattern.match(email):
         return False
     return True
