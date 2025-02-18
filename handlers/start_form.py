@@ -63,11 +63,11 @@ async def email_case(mes: Message, state: FSMContext):
         logging.info("Файл отправлен.")
 
         logging.info("Запущен таймер на 5 мин")
-        await asyncio.sleep(10)
+        await asyncio.sleep(300)
         await mes.answer(SECONDARY_TEXT)
 
         logging.info("Запущен таймер на 5 мин")
-        await asyncio.sleep(10)
+        await asyncio.sleep(300)
         await mes.answer(THIRD_TEXT, reply_markup=url_keyboard())
     else:
         await mes.answer("Введите e-mail корректно!")
