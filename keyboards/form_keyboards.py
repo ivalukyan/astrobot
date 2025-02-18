@@ -20,3 +20,12 @@ def start_form_keyboard()->InlineKeyboardMarkup:
             [InlineKeyboardButton(text="Заполнить форму", callback_data="start_form")]
         ]
     )
+
+
+def person_send_keyboard()->InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="УЗНАЙ КАК РЕШИТЬ СВОЙ ЗАПРОС",
+                                  callback_data="person_form")],
+        ]
+    )

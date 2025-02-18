@@ -9,12 +9,16 @@ from aiogram.types import (
     CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
 )
 
-from keyboards.form_keyboards import url_keyboard
+from keyboards.form_keyboards import url_keyboard, person_send_keyboard
 from service.google_sheets import async_get_sheet
 from service.redis import User
 
 from utils.validations import check_name, check_email, check_phone
-from utils.texts import SECONDARY_TEXT, THIRD_TEXT
+from utils.texts import SECONDARY_TEXT, THIRD_TEXT, PERSON_TEXT
+from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = Router()
 
@@ -65,7 +69,7 @@ async def email_case(mes: Message, state: FSMContext):
 
         logging.info("Запущен таймер на 5 мин")
         await asyncio.sleep(300)
-        await mes.answer(SECONDARY_TEXT)
+        await mes.answer(SECONDARY_TEXT, reply_markup=person_send_keyboard(), parse_mode="html")
 
         logging.info("Запущен таймер на 5 мин")
         await asyncio.sleep(300)
@@ -74,3 +78,7 @@ async def email_case(mes: Message, state: FSMContext):
     else:
         await mes.answer("Введите e-mail корректно!")
 
+
+@router.callback_query(lambda c: c.data == "person_form")
+async def person_form(call: CallbackQuery):
+    await call.bot.send_message(chat_id=getenv("PERSON_ID"), text=PERSON_TEXT)
