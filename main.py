@@ -45,11 +45,9 @@ async def command_start(message: Message) -> None:
     else:
         user = await User.get_from_redis(message.from_user.id)
         if user.approved:
-            await message.answer_photo(photo=foto, caption=f"Здравствуйте, {message.from_user.first_name}, "
-                                                           + START_TEXT_BOT)
-            f = FSInputFile("files/guide.pdf")
-            await message.answer_document(f)
-            logging.info("Файл отправлен.")
+            await message.answer(text="Вы уже получили свой гайд. Если Вы его потеряли, то пришлем Вам его снова!")
+            file = FSInputFile("files/guide.pdf")
+            await message.answer_document(file)
         else:
             await message.answer("Вы не до конца заполнили форму!")
 
