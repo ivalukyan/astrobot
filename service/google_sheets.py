@@ -4,6 +4,12 @@ import logging
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from gspread.exceptions import APIError
+from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 
 # Функция для авторизации
 def authorize():
@@ -21,7 +27,7 @@ async def async_get_sheet(retries=3, delay=2):
     for attempt in range(retries):
         try:
             client = await asyncio.to_thread(authorize)  # Авторизация
-            sheet = await asyncio.to_thread(client.open, "Контакты")  # Открываем таблицу
+            sheet = await asyncio.to_thread(client.open, getenv("GOOGLE_TABLE"))  # Открываем таблицу
             worksheet = await asyncio.to_thread(sheet.get_worksheet, 0)  # Получаем лист
             return worksheet  # Успешный результат
         except APIError as e:
