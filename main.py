@@ -15,9 +15,11 @@ from dotenv import load_dotenv
 
 from handlers.start_form import router as start_form_router
 from handlers.admin import router as admin_router
+from keyboards.form_keyboards import start_form_keyboard
 from service.redis import User
 from utils.texts import START_TEXT_BOT
 from datetime import datetime
+from service.notification import send_not
 
 load_dotenv()
 
@@ -32,13 +34,10 @@ dp = Dispatcher()
 @router.message(CommandStart())
 async def command_start(message: Message) -> None:
     exist_user = await User.exist_in_redis(message.from_user.id)
+    foto = FSInputFile("img/foto1.jpg")
     if not exist_user:
-        await message.answer(f"Здравствуйте, {message.from_user.first_name}, " + START_TEXT_BOT,
-                             reply_markup=InlineKeyboardMarkup(
-                                 inline_keyboard=[
-                                     [InlineKeyboardButton(text="Заполнить форму", callback_data="start_form")]
-                                 ]
-                             ))
+        await message.answer_photo(photo=foto, caption=f"Здравствуйте, {message.from_user.first_name}, " + START_TEXT_BOT,
+                                   reply_markup=start_form_keyboard())
 
         user = User(id=message.from_user.id, username=message.from_user.username, approved=False,
                     date_joined=datetime.now())
@@ -46,7 +45,8 @@ async def command_start(message: Message) -> None:
     else:
         user = await User.get_from_redis(message.from_user.id)
         if user.approved:
-            await message.answer(f"Здравствуйте, {message.from_user.first_name}, " + START_TEXT_BOT)
+            await message.answer_photo(photo=foto, caption=f"Здравствуйте, {message.from_user.first_name}, "
+                                                           + START_TEXT_BOT)
             f = FSInputFile("files/guide.pdf")
             await message.answer_document(f)
             logging.info("Файл отправлен.")
@@ -56,6 +56,7 @@ async def command_start(message: Message) -> None:
 
 async def main():
     dp.include_routers(start_form_router, admin_router, router)
+    asyncio.create_task(send_not(bot_object))
     await dp.start_polling(bot_object)
 
 

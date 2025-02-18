@@ -28,7 +28,8 @@ class StartForm(StatesGroup):
 @router.callback_query(lambda c: c.data == "start_form")
 async def start_form(c: CallbackQuery, state: FSMContext):
     await state.set_state(StartForm.name)
-    await c.message.edit_text("Напишите свое имя")
+    await c.message.delete()
+    await c.message.answer("Напишите свое имя")
 
 
 @router.message(StartForm.name)
@@ -68,7 +69,8 @@ async def email_case(mes: Message, state: FSMContext):
 
         logging.info("Запущен таймер на 5 мин")
         await asyncio.sleep(300)
-        await mes.answer(THIRD_TEXT, reply_markup=url_keyboard())
+        s = FSInputFile("img/foto2.jpg")
+        await mes.answer_photo(photo=s, caption=THIRD_TEXT, reply_markup=url_keyboard())
     else:
         await mes.answer("Введите e-mail корректно!")
 
