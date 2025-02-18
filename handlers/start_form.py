@@ -77,8 +77,3 @@ async def email_case(mes: Message, state: FSMContext):
         await mes.answer_photo(photo=s, caption=THIRD_TEXT, reply_markup=url_keyboard())
     else:
         await mes.answer("Введите e-mail корректно!")
-
-
-@router.callback_query(lambda c: c.data == "person_form")
-async def person_form(call: CallbackQuery):
-    await call.bot.send_message(chat_id=getenv("PERSON_ID"), text=PERSON_TEXT)
