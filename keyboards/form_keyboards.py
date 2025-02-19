@@ -8,7 +8,6 @@ load_dotenv()
 def url_keyboard()->InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Узнай как...", url=getenv('PROFILE_URL'))],
             [InlineKeyboardButton(text="Жми тут", url=getenv('GUIDE_URL'))]
         ]
     )
