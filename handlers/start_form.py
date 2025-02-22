@@ -1,22 +1,19 @@
 import asyncio
 import logging
 
-
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import (
-    CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
+    CallbackQuery, Message, FSInputFile
 )
+from dotenv import load_dotenv
 
-from keyboards.form_keyboards import url_keyboard, person_send_keyboard
+from keyboards.form_keyboards import url_keyboard, person_send_keyboard, problem_keyboard, guide_keyboard
 from service.google_sheets import async_get_sheet
 from service.redis import User
-
-from utils.validations import check_name, check_email, check_phone
-from utils.texts import SECONDARY_TEXT, THIRD_TEXT, PERSON_TEXT
-from os import getenv
-from dotenv import load_dotenv
+from utils.texts import SECONDARY_TEXT, THIRD_TEXT, FIVE_TEXT, FOUR_TEXT
+from utils.validations import check_name, check_email
 
 load_dotenv()
 
@@ -30,10 +27,38 @@ class StartForm(StatesGroup):
 
 
 @router.callback_query(lambda c: c.data == "start_form")
-async def start_form(c: CallbackQuery, state: FSMContext):
-    await state.set_state(StartForm.name)
-    await c.message.delete()
-    await c.message.answer("Напишите свое имя")
+async def start_form(c: CallbackQuery):
+    await c.message.answer(text=SECONDARY_TEXT, parse_mode="html", reply_markup=problem_keyboard())
+
+
+@router.callback_query(lambda c: c.data == "second_message")
+async def problem(c: CallbackQuery):
+    await c.message.answer(text=THIRD_TEXT, parse_mode="html", reply_markup=guide_keyboard())
+
+
+@router.callback_query(lambda c: c.data == "third_message")
+async def guide(c: CallbackQuery, state: FSMContext):
+    user = await User.get_from_redis(c.message.chat.id)
+    if user:
+        if user.approved:
+            # await c.message.answer("Спасибо, что заполнили форму! Прямо сейчас отправим Вам гайд!")
+            f = FSInputFile("files/guide.pdf")
+            await c.message.answer_document(f)
+            logging.info("Файл отправлен.")
+
+            logging.info("Запущен таймер на 1.30 мин")
+            await asyncio.sleep(90)
+            await c.message.answer(FOUR_TEXT, reply_markup=person_send_keyboard(), parse_mode="html")
+
+            logging.info("Запущен таймер на 1.30 мин")
+            await asyncio.sleep(90)
+            s = FSInputFile("img/foto2.jpg")
+            await c.message.answer_photo(photo=s, caption=FIVE_TEXT, reply_markup=url_keyboard())
+        else:
+            await state.set_state(StartForm.name)
+            await c.message.answer(text="Для начала пройдем небольшую форму.\nНапишите свое имя:")
+    else:
+        logging.info(f"Пользователь {c.message.chat.id} не существует в redis.")
 
 
 @router.message(StartForm.name)
@@ -67,13 +92,13 @@ async def email_case(mes: Message, state: FSMContext):
         await mes.answer_document(f)
         logging.info("Файл отправлен.")
 
-        logging.info("Запущен таймер на 5 мин")
-        await asyncio.sleep(300)
-        await mes.answer(SECONDARY_TEXT, reply_markup=person_send_keyboard(), parse_mode="html")
+        logging.info("Запущен таймер на 1.30 мин")
+        await asyncio.sleep(90)
+        await mes.answer(FOUR_TEXT, reply_markup=person_send_keyboard(), parse_mode="html")
 
-        logging.info("Запущен таймер на 5 мин")
-        await asyncio.sleep(300)
+        logging.info("Запущен таймер на 1.30 мин")
+        await asyncio.sleep(90)
         s = FSInputFile("img/foto2.jpg")
-        await mes.answer_photo(photo=s, caption=THIRD_TEXT, reply_markup=url_keyboard())
+        await mes.answer_photo(photo=s, caption=FIVE_TEXT, reply_markup=url_keyboard())
     else:
         await mes.answer("Введите e-mail корректно!")

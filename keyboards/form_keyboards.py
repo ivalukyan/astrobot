@@ -8,7 +8,7 @@ load_dotenv()
 def url_keyboard()->InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Жми тут", url=getenv('GUIDE_URL'))]
+            [InlineKeyboardButton(text="ЧТО ГОВОРЯТ", url=getenv('CHANEL_URL'))]
         ]
     )
 
@@ -16,7 +16,7 @@ def url_keyboard()->InlineKeyboardMarkup:
 def start_form_keyboard()->InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Заполнить форму", callback_data="start_form")]
+            [InlineKeyboardButton(text="ПРОВЕРИМ", callback_data="start_form")]
         ]
     )
 
@@ -24,6 +24,20 @@ def start_form_keyboard()->InlineKeyboardMarkup:
 def person_send_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="УЗНАЙ КАК РЕШИТЬ СВОЙ ЗАПРОС", url=getenv('PROFILE_URL'))],
+            [InlineKeyboardButton(text="КОНСУЛЬТАЦИЯ В 🎁", url=getenv('PROFILE_URL'))],
         ]
     )
+
+
+def problem_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="А ЧЕМ ПРОБЛЕМА?", callback_data="second_message")]
+        ]
+    )
+
+
+def guide_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="ЗАБРАТЬ ГАЙД", callback_data="third_message")]
+    ])
